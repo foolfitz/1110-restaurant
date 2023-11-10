@@ -1,7 +1,7 @@
 const { engine } = require('express-handlebars')
 const express = require('express')
 const app = express()
-const port = 3000
+const port = 3001
 const restaurant = require('./public/jsons/restaurant.json').results
 
 app.listen(port, () => {
@@ -9,7 +9,22 @@ app.listen(port, () => {
 })
 
 app.get('/', (req, res) => {
-  res.render('index', { restaurant: restaurant })
+  res.render('index', { shops: restaurant })
+})
+
+// form action 導向 /search
+app.get('/search', (req, res) => {
+  // input name 是 keyword
+  const keyword = req.query.keyword?.trim() || '';
+  const matchedShops = keyword ? restaurant.filter((item) => {
+    return Object.values(item).some((property) => {
+      if (typeof property === 'string') {
+        return property.toLowerCase().includes(keyword.toLowerCase())
+      }
+      return false
+    })
+  }) : restaurant
+  res.render('index', { shops: matchedShops })
 })
 
 app.get('/restaurants/:id', (req, res) => {
